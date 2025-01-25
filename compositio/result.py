@@ -20,6 +20,13 @@ class Result[S,F]:
             case Failure(v):
                 return Result(Failure(v))
 
+    def bimap[T](self, f:Callable[[S], T], g:Callable[[F], T]):
+        match self._val:
+            case Success(v):
+                return Result(Success(f(v)))
+            case Failure(v):
+                return Result(Failure(g(v)))
+
     def bind[T](self, f: Callable[[S], "Result[T, F]"]):
         match self._val:
             case Success(v):
@@ -29,3 +36,10 @@ class Result[S,F]:
 
     def __rshift__[T](self, other: Callable[[S], "Result[T, F]"]):
         return self.bind(other)
+
+    def either[T](self, onsuccess: Callable[[S], T], onfailure: Callable[[F], T]):
+        match self._val:
+            case Success(v):
+                return onsuccess(v)
+            case Failure(v):
+                return onfailure(v)
