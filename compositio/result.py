@@ -3,10 +3,10 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Result[S, F]:
-    _val: tuple[Literal["Ok"], S] | tuple[Literal["Err"], F]
+class Result[O, E]:
+    _val: tuple[Literal["Ok"], O] | tuple[Literal["Err"], E]
 
-    def map[T](self, f: Callable[[S], T]) -> "Result[T,F]":
+    def map[T](self, f: Callable[[O], T]) -> "Result[T,E]":
         match self._val:
             case "Ok", v:
                 return Result(("Ok", f(v)))
@@ -14,25 +14,25 @@ class Result[S, F]:
                 return Result(("Err", v))
 
     def bimap[
-        S2, F2
-    ](self, f: Callable[[S], S2], g: Callable[[F], F2]) -> "Result[S2, F2]":
+        O2, E2
+    ](self, f: Callable[[O], O2], g: Callable[[E], E2]) -> "Result[O2, E2]":
         match self._val:
             case "Ok", v:
                 return Result(("Ok", f(v)))
             case "Err", v:
                 return Result(("Err", g(v)))
 
-    def bind[T](self, f: Callable[[S], "Result[T, F]"]) -> "Result[T, F]":
+    def bind[T](self, f: Callable[[O], "Result[T, E]"]) -> "Result[T, E]":
         match self._val:
             case "Ok", v:
                 return f(v)
             case "Err", v:
                 return Result(("Err", v))
 
-    def __rshift__[T](self, other: Callable[[S], "Result[T, F]"]):
+    def __rshift__[T](self, other: Callable[[O], "Result[T, E]"]):
         return self.bind(other)
 
-    def either[R](self, onsuccess: Callable[[S], R], onfailure: Callable[[F], R]) -> R:
+    def either[R](self, onsuccess: Callable[[O], R], onfailure: Callable[[E], R]) -> R:
         match self._val:
             case "Ok", v:
                 return onsuccess(v)

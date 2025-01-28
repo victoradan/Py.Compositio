@@ -1,2 +1,2 @@
 # Py.Compositio
-Functional Programming types and combinators in Python
+(WIP experiments in) Functional Programming types and combinators in Python
