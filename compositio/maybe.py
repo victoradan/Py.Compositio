@@ -1,14 +1,27 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Literal
 
 
 @dataclass(eq=True, frozen=True)
 class Maybe[T]:
-    val: T | None
+    _val: tuple[Literal["Just"], T] | Literal["Nothing"]
 
     def map[U](self, f: Callable[[T], U]):
-        return Maybe(f(self.val) if self.val is not None else None)
+        match self._val:
+            case ("Just", v):
+                return Maybe(('Just', f(v)))
+            case "Nothing":
+                return self
 
-    @staticmethod
-    def maybe[I, O](none: Callable[[], O], otherwise: Callable[[I], O], val: I | None):
-        return none() if val is None else otherwise(val)
+
+    def maybe[B](self, nothing: B, otherwise: Callable[[T], B]):
+        match self._val:
+            case ('Just', v):
+                return otherwise(v)
+            case 'Nothing':
+                return nothing
+
+
+def maybe_none[I, O](none: O, otherwise: Callable[[I], O], val: I | None):
+    return none if val is None else otherwise(val)
+
