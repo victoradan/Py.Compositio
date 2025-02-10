@@ -21,6 +21,11 @@ class Maybe[T]:
             case 'Nothing':
                 return nothing
 
+def just[T](val:T):
+    return Maybe(('Just', val))
+
+def nothing():
+    return Maybe("Nothing")
 
 def maybe_none[I, O](none: O, otherwise: Callable[[I], O], val: I | None):
     return none if val is None else otherwise(val)
