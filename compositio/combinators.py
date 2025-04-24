@@ -2,11 +2,11 @@ from typing import Callable, Iterable
 import concurrent.futures
 
 
-def identity[T](x: T):
+def identity[T](x: T) -> T:
     return x
 
 
-def const[T](x: T):
+def const[T](x: T) -> Callable[[object], T]:
     def f(_):
         return x
 
@@ -49,11 +49,11 @@ def uncurry[A, B, C](f: Callable[[A, B], C]):
     return g
 
 
-def dup[A](x: A):
+def dup[A](x: A) -> tuple[A, A]:
     return (x, x)
 
 
-def swap[A, B](x: A, y: B):
+def swap[A, B](x: A, y: B) -> tuple[B, A]:
     return (y, x)
 
 

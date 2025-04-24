@@ -135,7 +135,9 @@ class Arrow[I, O]:
         >>> 1 >> (addOne ^ 0)
         2
         """
-        return Arrow(lambda x: other if x is None else self.f(x))
+        def h(x: I|None) -> O:  # pylint: disable=undefined-variable
+            return self.f(x) if x is not None else other
+        return Arrow(h)
 
 
 def first[I, O](arrow: "Arrow[I, O]"):
