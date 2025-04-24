@@ -1,18 +1,7 @@
-"""
-Revise operators?
-
-|   apply 
-**  arrow composition
-*   arrow and func composition
-^   if none else
-@   invoke while none
-
-"""
-
 from typing import Callable, Iterable
 from functools import reduce
 
-from .combinators import identity, mapc
+from compositio.combinators import identity, mapc
 
 
 class Arrow[X, Y]:
@@ -34,6 +23,8 @@ class Arrow[X, Y]:
         """
         return self.f(x)
 
+    __call__ = __rrshift__
+
     @staticmethod
     def first[I, O](arrow: "Arrow[I, O]"):
         """
@@ -44,16 +35,25 @@ class Arrow[X, Y]:
 
         return arrow + Arrow(identity)
 
-    def __mul__[O](self, other: "Arrow[Y, O]"):
+    def __matmul__[A](self, other: "Arrow[A, X]" | Callable[[A], X]):
         """Arrow composition
 
         (I -> O) -> (O -> P) ==> (I -> P)
         """
 
-        def h(x: X):  # pylint: disable=undefined-variable
-            return other.f(self.f(x))
+        match other:
+            case Arrow():
+                def h(x: A):
+                    return self.f(other.f(x))
+                    # return other.f(self.f(x))
+                return Arrow(h)
+            case _:
+                def g(x: A):  
+                    # return other(self.f(x))
+                    return self.f(other(x))
+                return Arrow(g)
 
-        return Arrow(h)
+    __rmatmul__ = __matmul__
 
     def __add__[I2, O2](self, other: "Arrow[I2, O2]"):
         """Split the input between the two argument arrows and combine their output.
@@ -88,7 +88,7 @@ class Arrow[X, Y]:
 
         x >> f - g = (f x, g x)
 
-        This is equivalent to: (lambda x : (x, x)) % (f + g)
+        This is equivalent to: (f + g) @ (lambda x : (x, x)) 
 
         Mnemonic: The - sign means that we process a single input.
 
@@ -102,7 +102,7 @@ class Arrow[X, Y]:
         def h(x: X):  # pylint: disable=undefined-variable
             return (x, x)
 
-        return Arrow(h) * (self + other)
+        return (self + other) @ Arrow(h)
 
     def __or__(self, other: "Arrow[X,Y]"):
         """
@@ -122,55 +122,16 @@ class Arrow[X, Y]:
 
         return Arrow(h)
 
-    def __xor__(self, other: "Arrow[None, Y]") -> "Arrow[X | None, Y]":
-        """If input is None, call `other`, else call `self` on it.
+    def __xor__(self, other: Y) -> "Arrow[X | None, Y]":
+        """If input is None, return `other`, else call `self` on input.
 
         >>> addOne = Arrow(lambda x : x + 1)
-        >>> zero = Arrow(lambda _ : 0)
-        >>> None >> (addOne ^ zero)
+        >>> None >> (addOne ^ 0)
         0
-        >>> 1 >> (addOne ^ zero)
+        >>> 1 >> (addOne ^ 0)
         2
         """
-        return Arrow(lambda x: other.f(x) if x is None else self.f(x))
-
-    def __mod__[H](self, other: Callable[[Y], H]):
-        """Function and Arrow composition; function after.
-
-        --> self --> f -->
-
-        If f and g are pure functions, then
-        Arrow(f) % g  ==  Arrow(f) * Arrow(g)
-
-        Mnemonic: The two circles of the % symbol remind you that on one side
-        is an arrow, and the other side is a pure function.
-
-        >>> addOne = Arrow(lambda x : x + 1)
-        >>> 10 >> addOne % (lambda x : x * 2)  # This lambda is not an arrow.
-        22
-
-        """
-        return self * Arrow(other)
-
-    def __rmod__[H](self, other: Callable[[H], X]):
-        """Function and Arrow composition; function before.
-
-        --> f --> self -->
-
-        If f and g are pure functions, then
-        f % Arrow(g)  ==  Arrow(f) * Arrow(g)
-
-        Note that the direction of the data flow (from left to right) is
-        preserved, since `other` appears before `self` in the code.  It's just
-        that `other` is a pure function that doesn't support `__mod__`, so
-        `__rmod__` of the following object (self) kicks in.
-
-        >>> double = Arrow(lambda x : x * 2)
-        >>> 10 >> (lambda x : x + 1) % double  # This lambda is not an arrow.
-        22
-
-        """
-        return Arrow(other) * self
+        return Arrow(lambda x: other if x is None else self.f(x))
 
 
 idA = Arrow(identity)
@@ -238,7 +199,7 @@ if __name__ == "__main__":
     def mul3(x: int):
         return x * 3
 
-    def none(x: int) -> int | None:
+    def none(_: int) -> int | None:
         return None
 
     def maybeAdd3(x: int) -> int | None:
@@ -248,9 +209,20 @@ if __name__ == "__main__":
     r = 2 >> idA
     r = identity(3)
 
-    r = (2, 2) >> Arrow(add2) + idA % mul3 % mul3
+    print("compose")
+    r = Arrow(add2) @ mul3
+    print(3 >> r)
+    r = mul3 @ Arrow(add2) 
+    print(3 >> r)
+    print(r(3))
+
+    print("other")
+    r = (2, 2) >> Arrow(add2) + idA @ mul3 @ mul3
     print(r)
     r = (1, 1) >> Arrow.first(Arrow(add2))
     print(r)
     m = Arrow(none) | Arrow(maybeAdd3)
     print(2 >> m)
+    m = Arrow(add2) ^ 100
+    print(None >> m)
+    print(10 >> Arrow(add2) - Arrow(mul3))
