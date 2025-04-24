@@ -15,5 +15,6 @@ def test_Maybe_functor_laws(v):
         return x + suffix
     a1 = partial(append, "1")
     a2 = partial(append, "2")
+
     assert maybe.just(v).map(a1).map(a2) == maybe.just(v).map(compose(a1, a2))
     assert maybe.nothing().map(a1).map(a2) == maybe.nothing().map(compose(a1, a2))

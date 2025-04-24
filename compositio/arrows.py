@@ -7,8 +7,10 @@ from compositio.combinators import identity, mapc
 class Arrow[I, O]:
     f: Callable[[I], O]
 
-    def __init__(self, func: Callable[[I], O]):
-        self.f = func
+    __match_args__ = ("f",)
+
+    def __init__(self, f: Callable[[I], O]):
+        self.f = f
 
     def __rrshift__(self, x: I):
         """Arrow application.
@@ -35,15 +37,27 @@ class Arrow[I, O]:
             case Arrow():
                 def h(x: A):
                     return self.f(other.f(x))
-                    # return other.f(self.f(x))
                 return Arrow(h)
             case _:
                 def g(x: A):  
-                    # return other(self.f(x))
                     return self.f(other(x))
                 return Arrow(g)
 
-    __rmatmul__ = __matmul__
+    def __rmatmul__[B](self, other: "Arrow[O, B]" | Callable[[O], B]):
+        """Arrow composition
+
+        (I -> O) -> (O -> P) ==> (I -> P)
+        """
+
+        match other:
+            case Arrow():
+                def h(x: I):
+                    return other.f(self.f(x))
+                return Arrow(h)
+            case _:
+                def g(x: I):  
+                    return other(self.f(x))
+                return Arrow(g)
 
     def __add__[A, B](self, other: "Arrow[A, B]"):
         """Split the input between the two argument arrows and combine their output.
