@@ -4,13 +4,13 @@ from functools import reduce
 from compositio.combinators import identity, mapc
 
 
-class Arrow[X, Y]:
-    f: Callable[[X], Y]
+class Arrow[I, O]:
+    f: Callable[[I], O]
 
-    def __init__(self, func: Callable[[X], Y]):
+    def __init__(self, func: Callable[[I], O]):
         self.f = func
 
-    def __rrshift__(self, x: X):
+    def __rrshift__(self, x: I):
         """Arrow application.
 
         x >> F, invokes the `F` Arrow on `x`.
@@ -25,17 +25,7 @@ class Arrow[X, Y]:
 
     __call__ = __rrshift__
 
-    @staticmethod
-    def first[I, O](arrow: "Arrow[I, O]"):
-        """
-        Send the first component of the input through the argument arrow, and copy the rest unchanged to the output.
-
-        I -> O ==> (I, T) -> (O, T)
-        """
-
-        return arrow + Arrow(identity)
-
-    def __matmul__[A](self, other: "Arrow[A, X]" | Callable[[A], X]):
+    def __matmul__[A](self, other: "Arrow[A, I]" | Callable[[A], I]):
         """Arrow composition
 
         (I -> O) -> (O -> P) ==> (I -> P)
@@ -55,10 +45,10 @@ class Arrow[X, Y]:
 
     __rmatmul__ = __matmul__
 
-    def __add__[I2, O2](self, other: "Arrow[I2, O2]"):
+    def __add__[A, B](self, other: "Arrow[A, B]"):
         """Split the input between the two argument arrows and combine their output.
 
-        (I -> O, I2 -> O2) ==> (I, I2) -> (O, O2)
+        (I -> O, A -> B) ==> (I, A) -> (O, B)
 
            |--> self -->|
         ==>|            |==>
@@ -72,15 +62,15 @@ class Arrow[X, Y]:
         (6, 20)
         """
 
-        def h(xy: tuple[X, I2]):  # pylint: disable=undefined-variable
+        def h(xy: tuple[I, A]):  # pylint: disable=undefined-variable
             return self.f(xy[0]), other.f(xy[1])
 
         return Arrow(h)
 
-    def __sub__[O2](self, other: "Arrow[X, O2]"):
+    def __sub__[B](self, other: "Arrow[I, B]"):
         """Fanout: send the input to both argument arrows and combine their output.
 
-        (I -> O, I -> P) ==> I ->  (O, P)
+        (I -> O, I -> B) ==> I ->  (O, B)
 
            |--> self -->|
         -->|            |==>
@@ -99,12 +89,12 @@ class Arrow[X, Y]:
 
         """
 
-        def h(x: X):  # pylint: disable=undefined-variable
+        def h(x: I):  # pylint: disable=undefined-variable
             return (x, x)
 
         return (self + other) @ Arrow(h)
 
-    def __or__(self, other: "Arrow[X,Y]"):
+    def __or__(self, other: "Arrow[I,O]"):
         """
         Apply alternate Arrows until the first non-falsy result is found.
 
@@ -117,12 +107,12 @@ class Arrow[X, Y]:
         3
         """
 
-        def h(x: X) -> Y:  # pylint: disable=undefined-variable
+        def h(x: I) -> O:  # pylint: disable=undefined-variable
             return self.f(x) or other.f(x)
 
         return Arrow(h)
 
-    def __xor__(self, other: Y) -> "Arrow[X | None, Y]":
+    def __xor__(self, other: O) -> "Arrow[I | None, O]":
         """If input is None, return `other`, else call `self` on input.
 
         >>> addOne = Arrow(lambda x : x + 1)
@@ -134,7 +124,16 @@ class Arrow[X, Y]:
         return Arrow(lambda x: other if x is None else self.f(x))
 
 
-idA = Arrow(identity)
+def first[I, O](arrow: "Arrow[I, O]"):
+    """
+    Send the first component of the input through the argument arrow, and copy the rest unchanged to the output.
+
+    I -> O ==> (I, T) -> (O, T)
+    """
+
+    return arrow + Arrow(identity)
+
+aid = Arrow(identity)
 
 
 def mapa[I, O](f: Callable[[I], O]):
@@ -205,8 +204,8 @@ if __name__ == "__main__":
     def maybeAdd3(x: int) -> int | None:
         return x + 3
 
-    r = idA.f(3)
-    r = 2 >> idA
+    r = aid.f(3)
+    r = 2 >> aid
     r = identity(3)
 
     print("compose")
@@ -217,9 +216,9 @@ if __name__ == "__main__":
     print(r(3))
 
     print("other")
-    r = (2, 2) >> Arrow(add2) + idA @ mul3 @ mul3
+    r = (2, 2) >> Arrow(add2) + aid @ mul3 @ mul3
     print(r)
-    r = (1, 1) >> Arrow.first(Arrow(add2))
+    r = (1, 1) >> first(Arrow(add2))
     print(r)
     m = Arrow(none) | Arrow(maybeAdd3)
     print(2 >> m)
