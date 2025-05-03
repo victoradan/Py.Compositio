@@ -1,5 +1,5 @@
-from typing import Callable, Iterable
 from functools import reduce
+from typing import Callable, Iterable
 
 from compositio.combinators import identity, mapc
 
@@ -27,7 +27,7 @@ class Arrow[I, O]:
 
     __call__ = __rrshift__
 
-    def __matmul__[A](self, other: "Arrow[A, I]" | Callable[[A], I]):
+    def __rmatmul__[A](self, other: "Arrow[A, I]" | Callable[[A], I]):
         """Arrow composition
 
         (I -> O) -> (O -> P) ==> (I -> P)
@@ -35,15 +35,19 @@ class Arrow[I, O]:
 
         match other:
             case Arrow():
+
                 def h(x: A):
                     return self.f(other.f(x))
+
                 return Arrow(h)
             case _:
-                def g(x: A):  
+
+                def g(x: A):
                     return self.f(other(x))
+
                 return Arrow(g)
 
-    def __rmatmul__[B](self, other: "Arrow[O, B]" | Callable[[O], B]):
+    def __matmul__[B](self, other: "Arrow[O, B]" | Callable[[O], B]):
         """Arrow composition
 
         (I -> O) -> (O -> P) ==> (I -> P)
@@ -51,12 +55,16 @@ class Arrow[I, O]:
 
         match other:
             case Arrow():
+
                 def h(x: I):
                     return other.f(self.f(x))
+
                 return Arrow(h)
             case _:
-                def g(x: I):  
+
+                def g(x: I):
                     return other(self.f(x))
+
                 return Arrow(g)
 
     def __add__[A, B](self, other: "Arrow[A, B]"):
@@ -92,7 +100,7 @@ class Arrow[I, O]:
 
         x >> f - g = (f x, g x)
 
-        This is equivalent to: (f + g) @ (lambda x : (x, x)) 
+        This is equivalent to: (f + g) @ (lambda x : (x, x))
 
         Mnemonic: The - sign means that we process a single input.
 
@@ -106,7 +114,7 @@ class Arrow[I, O]:
         def h(x: I):  # pylint: disable=undefined-variable
             return (x, x)
 
-        return (self + other) @ Arrow(h)
+        return Arrow(h) @ (self + other)
 
     def __or__(self, other: "Arrow[I,O]"):
         """
@@ -135,8 +143,10 @@ class Arrow[I, O]:
         >>> 1 >> (addOne ^ 0)
         2
         """
-        def h(x: I|None) -> O:  # pylint: disable=undefined-variable
+
+        def h(x: I | None) -> O:  # pylint: disable=undefined-variable
             return self.f(x) if x is not None else other
+
         return Arrow(h)
 
 
@@ -148,6 +158,7 @@ def first[I, O](arrow: "Arrow[I, O]"):
     """
 
     return arrow + Arrow(identity)
+
 
 aid = Arrow(identity)
 
@@ -227,7 +238,7 @@ if __name__ == "__main__":
     print("compose")
     r = Arrow(add2) @ mul3
     print(3 >> r)
-    r = mul3 @ Arrow(add2) 
+    r = mul3 @ Arrow(add2)
     print(3 >> r)
     print(r(3))
 

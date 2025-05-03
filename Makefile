@@ -1,3 +1,4 @@
+.PHONY: direnv venv install test
 
 direnv:
 	[ -d .envrc ] || echo "source .venv/bin/activate" > .envrc
@@ -8,3 +9,6 @@ venv:
 
 install: venv
 	.venv/bin/pip install -r requirements_dev.txt -e .
+
+test:
+	pytest --doctest-modules .

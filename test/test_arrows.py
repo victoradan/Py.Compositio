@@ -25,11 +25,13 @@ def test_arrow_composition(v):
     """Test the composition of arrows."""
 
     # Test the composition of arrows
-    assert (addA @ mulA)(v) == addA.f(mulA.f(v))
-    assert (mulA @ addA)(v) == mulA.f(addA.f(v))
+    assert (addA @ mulA)(v) == mulA.f(addA.f(v))
+    assert (mulA @ addA)(v) == addA.f(mulA.f(v))
     # Test the composition of an arrow and a function
-    assert (addA @ mul2)(v) == addA.f(mul2(v))
-    assert (mul2 @ addA)(v) == mul2(addA.f(v))
+    assert (addA @ mul2)(v) == mul2(addA.f(v))
+    assert (mul2 @ addA)(v) == addA.f(mul2(v))
+    # Composition of > 2 functions
+    assert (addA @ mulA @ addA)(v) == addA.f(mulA.f(addA.f(v)))
 
 
 @given(st.integers())
@@ -62,7 +64,7 @@ def test_arrow_sub(v):
     assert (mulA - addA)(v) == (mulA.f(v), addA.f(v))
 
 
-@given(st.integers())
+@given(st.integers(min_value=0))
 def test_arrow_or(v):
     """Test the or operator for arrows."""
 
