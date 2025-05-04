@@ -1,5 +1,5 @@
-from typing import Callable, Iterable
 import concurrent.futures
+from typing import Callable, Iterable, overload
 
 
 def identity[T](x: T) -> T:
@@ -31,22 +31,19 @@ def compose[A, B, C](f: Callable[[A], B], g: Callable[[B], C]):
     return c
 
 
-def curry[A, B, C](f: Callable[[tuple[A, B]], C]):
-    """Make a function that needs a 2-tuple accept two parameters instead."""
+@overload
+def curry[A, R](f: Callable[[A], R]) -> Callable[[A], R]: ...
+@overload
+def curry[A, B, R](f: Callable[[A, B], R]) -> Callable[[A], Callable[[B], R]]: ...
+@overload
+def curry[A, B, C, R](f: Callable[[A, B, C], R]) -> Callable[[A], Callable[[B], Callable[[C], R]]]: ...
+def curry(f):  # no type here; types are handled by overloads
+    def _curried(*args, **kwargs):
+        if len(args) + len(kwargs) >= f.__code__.co_argcount:
+            return f(*args, **kwargs)
+        return lambda *more_args, **more_kwargs: _curried(*args, *more_args, **{**kwargs, **more_kwargs})
 
-    def g(x: A, y: B):
-        return f((x, y))
-
-    return g
-
-
-def uncurry[A, B, C](f: Callable[[A, B], C]):
-    """Make a function that needs two parameters accept a 2-tuple instead."""
-
-    def g(xy: tuple[A, B]):
-        return f(xy[0], xy[1])
-
-    return g
+    return _curried
 
 
 def dup[A](x: A) -> tuple[A, A]:
@@ -76,7 +73,3 @@ def until[I](pred: Callable[[I], bool], func: Callable[[I], I], val: I):
     return val
 
 
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()
