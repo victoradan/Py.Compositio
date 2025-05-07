@@ -60,8 +60,13 @@ def compose[A, B, C](f: Callable[[B], C], g: Callable[[A], B]) -> Callable[[A], 
 
     return c
 
-def psi[A,B,C](f: Callable[[B,B], C], g: Callable[[A], B]) -> Callable[[A,A], C]:
+
+def psi[A, B, C](f: Callable[[B, B], C], g: Callable[[A], B]) -> Callable[[A, A], C]:
     return lambda x, y: f(g(x), g(y))
+
+
+def phi[A, B, C, D](f: Callable[[A], C], g: Callable[[C, D], B], h: Callable[[A], D]) -> Callable[[A], B]:
+    return lambda x: g(f(x), h(x))
 
 
 @overload

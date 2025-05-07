@@ -186,18 +186,6 @@ def mapca[I, O](f: Callable[[I], O]):
     return Arrow[Iterable[I], Iterable[O]](lambda xs: C.mapc(f, xs))
 
 
-def mapA(a: Arrow):
-    """Version of map that works like an arrow and takes an arrow instead of a
-    function.
-
-    >>> addOne = Arrow(lambda x : x + 1)
-    >>> [2, 3, 5, 7, 11] >> mapA(addOne) >> Arrow(list)
-    [3, 4, 6, 8, 12]
-
-    """
-    return mapa(a.f)
-
-
 def reducea[I, O](f, z):
     """Version of reduce (fold) that works like an arrow.
 
