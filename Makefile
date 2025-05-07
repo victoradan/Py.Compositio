@@ -12,3 +12,6 @@ install: venv
 
 test:
 	pytest --doctest-modules .
+
+types:
+	pyright .

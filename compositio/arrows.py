@@ -89,8 +89,8 @@ class Arrow[I, O]:
 
         return Arrow(h)
 
-    def __sub__[B](self, other: "Arrow[I, B]"):
-        """Fanout: send the input to both argument arrows and combine their output.
+    def __sub__[B](self, other: "Arrow[I, B]") -> "Arrow[I, tuple[O,B]]":
+        """Fanout
 
         (I -> O, I -> B) ==> I ->  (O, B)
 

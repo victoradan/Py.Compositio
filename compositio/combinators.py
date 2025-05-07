@@ -10,6 +10,8 @@ def i[T](x: T) -> T:
     """Identity"""
     return x
 
+def it[T](x: T) -> tuple[T, T]:
+    return (x, x)
 
 def l[A, B](a: A, _: B) -> A:
     """First"""
@@ -43,10 +45,6 @@ def d[A, B, C, D](f: Callable[[A, B], C], g: Callable[[D], B]) -> Callable[[A, D
     return lambda x, y: f(x, g(y))
 
 
-def b1[A, B, C, D](f: Callable[[C], D], g: Callable[[A, B], C]) -> Callable[[A, B], D]:
-    return lambda a, b: f(g(a, b))
-
-
 ## b
 def compose[A, B, C](f: Callable[[B], C], g: Callable[[A], B]) -> Callable[[A], C]:
     """Composition.
@@ -59,6 +57,10 @@ def compose[A, B, C](f: Callable[[B], C], g: Callable[[A], B]) -> Callable[[A], 
         return f(g(x))
 
     return c
+
+
+def b1[A, B, C, D](f: Callable[[C], D], g: Callable[[A, B], C]) -> Callable[[A, B], D]:
+    return lambda a, b: f(g(a, b))
 
 
 def psi[A, B, C](f: Callable[[B, B], C], g: Callable[[A], B]) -> Callable[[A, A], C]:
