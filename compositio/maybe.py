@@ -1,20 +1,20 @@
 from dataclasses import dataclass
 from typing import Callable, Literal
-
+from typing import Protocol
 
 @dataclass(eq=True, frozen=True)
 class Maybe[T]:
     _val: tuple[Literal["Just"], T] | Literal["Nothing"]
 
-    def map[U](self, f: Callable[[T], U]):
+    def map[U](self, f: Callable[[T], U]) -> "Maybe[U]":
         match self._val:
             case ("Just", v):
                 return Maybe(('Just', f(v)))
             case "Nothing":
-                return self
+                return Maybe("Nothing")
 
 
-    def maybe[B](self, nothing: B, otherwise: Callable[[T], B]):
+    def maybe[B](self, nothing: B, otherwise: Callable[[T], B]) -> B:
         match self._val:
             case ('Just', v):
                 return otherwise(v)
