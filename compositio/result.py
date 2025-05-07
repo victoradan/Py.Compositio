@@ -47,26 +47,3 @@ def ok[S, F](v: S):
 def err[S, F](v: F):
     return Result[S, F](("Err", v))
 
-
-if __name__ == "__main__":
-
-    def suc(x: int) -> str:
-        return "str"
-
-    def failbad(x: str) -> int:
-        return 3
-
-    def fail(x: str) -> str:
-        return "3"
-
-    def b(x: int) -> Result[int, str]:
-        return ok(x + 2)
-
-    s2: Result[int, str] = ok(21)
-    s: Result[int, str] = ok(21)
-    f = err("Error")
-    r = f.either(suc, fail)
-    r = s.either(suc, failbad)
-    print(r)
-    r = s2 >> b >> b
-    print(r)
