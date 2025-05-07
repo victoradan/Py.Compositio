@@ -19,4 +19,4 @@ def test_Result_functor_laws(v):
     a1 = append("1")
     a2 = append("2")
 
-    assert result.ok(v).map(a1).map(a2) == result.ok(v).map(compose(a1, a2))
+    assert result.ok(v).map(a1).map(a2) == result.ok(v).map(compose(a2, a1))

@@ -19,5 +19,5 @@ def test_Maybe_functor_laws(v):
     a1 = append("1")
     a2 = append("2")
 
-    assert maybe.just(v).map(a1).map(a2) == maybe.just(v).map(compose(a1, a2))
-    assert maybe.nothing().map(a1).map(a2) == maybe.nothing().map(compose(a1, a2))
+    assert maybe.just(v).map(a1).map(a2) == maybe.just(v).map(compose(a2, a1))
+    assert maybe.nothing().map(a1).map(a2) == maybe.nothing().map(compose(a2, a1))

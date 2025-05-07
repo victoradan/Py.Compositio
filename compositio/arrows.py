@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import Callable, Iterable
 
-from compositio.combinators import identity, mapc
+import compositio.combinators as C
 
 
 class Arrow[I, O]:
@@ -157,10 +157,10 @@ def first[I, O](arrow: "Arrow[I, O]"):
     I -> O ==> (I, T) -> (O, T)
     """
 
-    return arrow + Arrow(identity)
+    return arrow + Arrow(C.i)
 
 
-aid = Arrow(identity)
+aid = Arrow(C.i)
 
 
 def mapa[I, O](f: Callable[[I], O]):
@@ -183,7 +183,7 @@ def mapca[I, O](f: Callable[[I], O]):
     [3, 4, 6, 8, 12]
 
     """
-    return Arrow[Iterable[I], Iterable[O]](lambda xs: mapc(f, xs))
+    return Arrow[Iterable[I], Iterable[O]](lambda xs: C.mapc(f, xs))
 
 
 def mapA(a: Arrow):
