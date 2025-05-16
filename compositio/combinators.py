@@ -13,12 +13,12 @@ def i[T](x: T) -> T:
 def it[T](x: T) -> tuple[T, T]:
     return (x, x)
 
-def l[A, B](a: A, _: B) -> A:
+def l[A](a: A, _: object) -> A:
     """First"""
     return a
 
 
-def r[A, B](_: A, b: B) -> B:
+def r[B](_: object, b: B) -> B:
     """Second"""
     return b
 
@@ -86,9 +86,9 @@ def curry(f):  # no type here; types are handled by overloads
     return _curried
 
 
-def mapc[I, O](f: Callable[[I], O], ls: Iterable[I]):
+def mapc[I, O](f: Callable[[I], O], ls: Iterable[I], max_workers: int = 4) -> Iterable[O]:
     """Concurrent map function with ThreadPoolExecutor"""
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         return executor.map(f, ls)
 
 
