@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import Callable, Iterable
 
-import compositio.combinators as C
+import compositio.combinators as Comb
 
 
 class Arrow[A, B]:
@@ -83,10 +83,7 @@ class Arrow[A, B]:
         (6, 20)
         """
 
-        def h(xy: tuple[A, C]): 
-            return self.f(xy[0]), other.f(xy[1])
-
-        return Arrow(h)
+        return Arrow(Comb.agg(self.f, other.f))
 
     def __sub__[C](self, other: "Arrow[A, C]") -> "Arrow[A, tuple[B, C]]":
         """Fanout
@@ -156,10 +153,10 @@ def first[A, B, T](arrow: "Arrow[A, B]") -> Arrow[tuple[A, T], tuple[B,T]]:
     A -> B ==> (A, T) -> (B, T)
     """
 
-    return arrow + Arrow(C.i)
+    return arrow + Arrow(Comb.i)
 
 
-aid = Arrow(C.i)
+aid = Arrow(Comb.i)
 
 
 def mapa[I, O](f: Callable[[I], O]):
@@ -182,7 +179,7 @@ def mapca[I, O](f: Callable[[I], O]):
     [3, 4, 6, 8, 12]
 
     """
-    return Arrow[Iterable[I], Iterable[O]](lambda xs: C.mapc(f, xs))
+    return Arrow[Iterable[I], Iterable[O]](lambda xs: Comb.mapc(f, xs))
 
 
 def reducea[I, O](f, z):

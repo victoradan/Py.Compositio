@@ -1,6 +1,7 @@
-from typing import Callable, Literal
 from dataclasses import dataclass
+from typing import Callable, Literal
 
+import compositio.combinators as Comb
 
 @dataclass
 class Result[O, E]:
@@ -13,14 +14,17 @@ class Result[O, E]:
             case "Err", v:
                 return Result(("Err", v))
 
-    def bimap[
-        O2, E2
-    ](self, f: Callable[[O], O2], g: Callable[[E], E2]) -> "Result[O2, E2]":
+    __truediv__ = map
+
+    def bimap[O2, E2](self, f: Callable[[O], O2], g: Callable[[E], E2]) -> "Result[O2, E2]":
         match self._val:
             case "Ok", v:
                 return Result(("Ok", f(v)))
             case "Err", v:
                 return Result(("Err", g(v)))
+
+    def __floordiv__[O2, E2](self, fg: tuple[Callable[[O], O2], Callable[[E], E2]]) -> "Result[O2, E2]":
+        return self.bimap(fg[0], fg[1])
 
     def bind[T](self, f: Callable[[O], "Result[T, E]"]) -> "Result[T, E]":
         match self._val:
@@ -28,6 +32,7 @@ class Result[O, E]:
                 return f(v)
             case "Err", v:
                 return Result(("Err", v))
+
 
     def __rshift__[T](self, other: Callable[[O], "Result[T, E]"]):
         return self.bind(other)
@@ -46,4 +51,3 @@ def ok[S, F](v: S):
 
 def err[S, F](v: F):
     return Result[S, F](("Err", v))
-
