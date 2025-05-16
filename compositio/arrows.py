@@ -4,19 +4,18 @@ from typing import Callable, Iterable
 import compositio.combinators as C
 
 
-class Arrow[I, O]:
-    f: Callable[[I], O]
+class Arrow[A, B]:
+    f: Callable[[A], B]
 
     __match_args__ = ("f",)
 
-    def __init__(self, f: Callable[[I], O]):
+    def __init__(self, f: Callable[[A], B]):
         self.f = f
 
-    def __rrshift__(self, x: I):
+    def __rrshift__(self, x: A):
         """Arrow application.
 
         x >> F, invokes the `F` Arrow on `x`.
-
         x >> F = F.f(x)
 
         >>> 10 >> Arrow(lambda x : x + 1)
@@ -27,7 +26,27 @@ class Arrow[I, O]:
 
     __call__ = __rrshift__
 
-    def __rmatmul__[A](self, other: "Arrow[A, I]" | Callable[[A], I]):
+    def __rmatmul__[C](self, other: "Arrow[C, A]" | Callable[[C], A]) -> "Arrow[C, B]":
+        """Arrow composition
+
+        (C -> A) -> (A -> B) ==> (C -> B)
+        """
+
+        match other:
+            case Arrow():
+
+                def h(x: C):
+                    return self.f(other.f(x))
+
+                return Arrow(h)
+            case _:
+
+                def g(x: C):
+                    return self.f(other(x))
+
+                return Arrow(g)
+
+    def __matmul__[C](self, other: "Arrow[B, C]" | Callable[[B], C]) -> "Arrow[A, C]":
         """Arrow composition
 
         (I -> O) -> (O -> P) ==> (I -> P)
@@ -37,40 +56,20 @@ class Arrow[I, O]:
             case Arrow():
 
                 def h(x: A):
-                    return self.f(other.f(x))
-
-                return Arrow(h)
-            case _:
-
-                def g(x: A):
-                    return self.f(other(x))
-
-                return Arrow(g)
-
-    def __matmul__[B](self, other: "Arrow[O, B]" | Callable[[O], B]):
-        """Arrow composition
-
-        (I -> O) -> (O -> P) ==> (I -> P)
-        """
-
-        match other:
-            case Arrow():
-
-                def h(x: I):
                     return other.f(self.f(x))
 
                 return Arrow(h)
             case _:
 
-                def g(x: I):
+                def g(x: A):
                     return other(self.f(x))
 
                 return Arrow(g)
 
-    def __add__[A, B](self, other: "Arrow[A, B]"):
+    def __add__[C, D](self, other: "Arrow[C, D]"):
         """Split the input between the two argument arrows and combine their output.
 
-        (I -> O, A -> B) ==> (I, A) -> (O, B)
+        (A -> B, C -> D) ==> (A, C) -> (B, D)
 
            |--> self -->|
         ==>|            |==>
@@ -84,15 +83,15 @@ class Arrow[I, O]:
         (6, 20)
         """
 
-        def h(xy: tuple[I, A]):  # pylint: disable=undefined-variable
+        def h(xy: tuple[A, C]): 
             return self.f(xy[0]), other.f(xy[1])
 
         return Arrow(h)
 
-    def __sub__[B](self, other: "Arrow[I, B]") -> "Arrow[I, tuple[O,B]]":
+    def __sub__[C](self, other: "Arrow[A, C]") -> "Arrow[A, tuple[B, C]]":
         """Fanout
 
-        (I -> O, I -> B) ==> I ->  (O, B)
+        (A -> B, A -> C) ==> A -> (B, C)
 
            |--> self -->|
         -->|            |==>
@@ -111,12 +110,12 @@ class Arrow[I, O]:
 
         """
 
-        def h(x: I):  # pylint: disable=undefined-variable
+        def h(x: A):  # pylint: disable=undefined-variable
             return (x, x)
 
         return Arrow(h) @ (self + other)
 
-    def __or__(self, other: "Arrow[I,O]"):
+    def __or__(self, other: "Arrow[A,B]") -> "Arrow[A, B]":
         """
         Apply alternate Arrows until the first non-falsy result is found.
 
@@ -129,12 +128,12 @@ class Arrow[I, O]:
         3
         """
 
-        def h(x: I) -> O:  # pylint: disable=undefined-variable
+        def h(x: A) -> B:  # pylint: disable=undefined-variable
             return self.f(x) or other.f(x)
 
         return Arrow(h)
 
-    def __xor__(self, other: O) -> "Arrow[I | None, O]":
+    def __xor__(self, other: B) -> "Arrow[A | None, B]":
         """If input is None, return `other`, else call `self` on input.
 
         >>> addOne = Arrow(lambda x : x + 1)
@@ -144,17 +143,17 @@ class Arrow[I, O]:
         2
         """
 
-        def h(x: I | None) -> O:  # pylint: disable=undefined-variable
+        def h(x: A | None) -> B:  # pylint: disable=undefined-variable
             return self.f(x) if x is not None else other
 
         return Arrow(h)
 
 
-def first[I, O](arrow: "Arrow[I, O]"):
+def first[A, B, T](arrow: "Arrow[A, B]") -> Arrow[tuple[A, T], tuple[B,T]]:
     """
     Send the first component of the input through the argument arrow, and copy the rest unchanged to the output.
 
-    I -> O ==> (I, T) -> (O, T)
+    A -> B ==> (A, T) -> (B, T)
     """
 
     return arrow + Arrow(C.i)
@@ -200,4 +199,3 @@ def reducea[I, O](f, z):
 
     """
     return Arrow[list[I], O](lambda xs: reduce(f, xs, z))
-
