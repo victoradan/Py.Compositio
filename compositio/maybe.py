@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Callable, Literal
-from typing import Protocol
 
 @dataclass(eq=True, frozen=True)
 class Maybe[T]:
@@ -21,7 +20,7 @@ class Maybe[T]:
             case 'Nothing':
                 return nothing
 
-def just[T](val:T):
+def just[T](val:T): # pyright: ignore
     return Maybe(('Just', val))
 
 def nothing():
