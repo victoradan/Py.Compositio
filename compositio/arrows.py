@@ -146,7 +146,7 @@ class Arrow[A, B]:
         return Arrow(h)
 
 
-def first[A, B, T](arrow: "Arrow[A, B]") -> Arrow[tuple[A, T], tuple[B,T]]:
+def first[A, B, T](arrow: "Arrow[A, B]") -> Arrow[tuple[A, T], tuple[B, T]]:
     """
     Send the first component of the input through the argument arrow, and copy the rest unchanged to the output.
 

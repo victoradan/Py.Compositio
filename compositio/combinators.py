@@ -10,8 +10,10 @@ def i[T](x: T) -> T:
     """Identity"""
     return x
 
+
 def it[T](x: T) -> tuple[T, T]:
     return (x, x)
+
 
 def l[A](a: A, _: object) -> A:
     """First"""
@@ -85,8 +87,10 @@ def curry(f):  # no type here; types are handled by overloads
 
     return _curried
 
-def agg[A,B,C,D](f: Callable[[A], B], g: Callable[[C], D]) -> Callable[[tuple[A,C]], tuple[B,D]]:
+
+def agg[A, B, C, D](f: Callable[[A], B], g: Callable[[C], D]) -> Callable[[tuple[A, C]], tuple[B, D]]:
     return lambda xy: (f(xy[0]), g(xy[1]))
+
 
 def mapc[I, O](f: Callable[[I], O], ls: Iterable[I], max_workers: int = 4) -> Iterable[O]:
     """Concurrent map function with ThreadPoolExecutor"""

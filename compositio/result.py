@@ -3,6 +3,7 @@ from typing import Callable, Literal
 
 import compositio.combinators as Comb
 
+
 @dataclass
 class Result[O, E]:
     _val: tuple[Literal["Ok"], O] | tuple[Literal["Err"], E]
@@ -32,7 +33,6 @@ class Result[O, E]:
                 return f(v)
             case "Err", v:
                 return Result(("Err", v))
-
 
     def __rshift__[T](self, other: Callable[[O], "Result[T, E]"]):
         return self.bind(other)
