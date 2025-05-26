@@ -4,17 +4,17 @@ from typing import Callable, Literal
 
 @dataclass(eq=True, frozen=True)
 class Maybe[T]:
-    _val: tuple[Literal["Just"], T] | Literal["Nothing"]
+    val: tuple[Literal["Just"], T] | Literal["Nothing"]
 
     def map[U](self, f: Callable[[T], U]) -> "Maybe[U]":
-        match self._val:
+        match self.val:
             case ("Just", v):
                 return Maybe(("Just", f(v)))
             case "Nothing":
                 return Maybe("Nothing")
 
     def maybe[B](self, nothing: B, otherwise: Callable[[T], B]) -> B:
-        match self._val:
+        match self.val:
             case ("Just", v):
                 return otherwise(v)
             case "Nothing":

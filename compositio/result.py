@@ -6,10 +6,10 @@ import compositio.combinators as Comb
 
 @dataclass
 class Result[O, E]:
-    _val: tuple[Literal["Ok"], O] | tuple[Literal["Err"], E]
+    val: tuple[Literal["Ok"], O] | tuple[Literal["Err"], E]
 
     def map[T](self, f: Callable[[O], T]) -> "Result[T,E]":
-        match self._val:
+        match self.val:
             case "Ok", v:
                 return Result(("Ok", f(v)))
             case "Err", v:
@@ -18,7 +18,7 @@ class Result[O, E]:
     __truediv__ = map
 
     def bimap[O2, E2](self, f: Callable[[O], O2], g: Callable[[E], E2]) -> "Result[O2, E2]":
-        match self._val:
+        match self.val:
             case "Ok", v:
                 return Result(("Ok", f(v)))
             case "Err", v:
@@ -28,7 +28,7 @@ class Result[O, E]:
         return self.bimap(fg[0], fg[1])
 
     def bind[T](self, f: Callable[[O], "Result[T, E]"]) -> "Result[T, E]":
-        match self._val:
+        match self.val:
             case "Ok", v:
                 return f(v)
             case "Err", v:
@@ -38,7 +38,7 @@ class Result[O, E]:
         return self.bind(other)
 
     def either[R](self, onsuccess: Callable[[O], R], onfailure: Callable[[E], R]) -> R:
-        match self._val:
+        match self.val:
             case "Ok", v:
                 return onsuccess(v)
             case "Err", v:
