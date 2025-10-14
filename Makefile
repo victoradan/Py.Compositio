@@ -1,4 +1,6 @@
-.PHONY: direnv venv install test
+.PHONY: direnv venv install test init
+
+init: venv install direnv
 
 direnv:
 	[ -d .envrc ] || echo "source .venv/bin/activate" > .envrc

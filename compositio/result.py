@@ -15,16 +15,20 @@ class Result[O, E]:
             case "Err", v:
                 return Result(("Err", v))
 
-    __truediv__ = map
+    __rtruediv__ = map
 
-    def bimap[O2, E2](self, f: Callable[[O], O2], g: Callable[[E], E2]) -> "Result[O2, E2]":
+    def bimap[O2, E2](
+        self, f: Callable[[O], O2], g: Callable[[E], E2]
+    ) -> "Result[O2, E2]":
         match self.val:
             case "Ok", v:
                 return Result(("Ok", f(v)))
             case "Err", v:
                 return Result(("Err", g(v)))
 
-    def __floordiv__[O2, E2](self, fg: tuple[Callable[[O], O2], Callable[[E], E2]]) -> "Result[O2, E2]":
+    def __rfloordiv__[O2, E2](
+        self, fg: tuple[Callable[[O], O2], Callable[[E], E2]]
+    ) -> "Result[O2, E2]":
         return self.bimap(fg[0], fg[1])
 
     def bind[T](self, f: Callable[[O], "Result[T, E]"]) -> "Result[T, E]":
@@ -34,8 +38,8 @@ class Result[O, E]:
             case "Err", v:
                 return Result(("Err", v))
 
-    def __rshift__[T](self, other: Callable[[O], "Result[T, E]"]):
-        return self.bind(other)
+    def __rshift__[T](self, f: Callable[[O], "Result[T, E]"]):
+        return self.bind(f)
 
     def either[R](self, onsuccess: Callable[[O], R], onfailure: Callable[[E], R]) -> R:
         match self.val:

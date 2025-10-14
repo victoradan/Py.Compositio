@@ -10,6 +10,11 @@ def append(suffix: str, x: str):
     return x + suffix
 
 
+@curry
+def appendM(suffix: str, s: str):
+    return result.ok(s + suffix)
+
+
 @given(st.text())
 def test_Result_functor_laws(v):
     ## identity
@@ -25,16 +30,40 @@ def test_Result_functor_laws(v):
 
 def test_Result_map_op():
 
-    r = result.ok("a") / append("b")
+    r = append("b") / result.ok("a")
     assert r == result.ok("ab")
 
-    r = result.err("e") / append("b")
+    r = append("b") / result.err("e")
     assert r == result.err("e")
 
 
 def test_Result_bimap_op():
-    r = result.ok("a") // (append("b"), append("c"))
+    r = (append("b"), append("c")) // result.ok("a")
     assert r == result.ok("ab")
 
-    r = result.err("e") // (append("b"), append("c"))
+    r = (append("b"), append("c")) // result.err("e")
     assert r == result.err("ec")
+
+
+@given(st.text())
+def test_Result_bind_laws(v):
+    ## Identity
+    m = result.ok(v)
+    assert m.bind(appendM("s")) == appendM("s")(v)
+    assert m.bind(result.ok) == m
+
+    ## associativity
+    g = appendM("s")
+    h = appendM("t")
+
+    def gh(s: str):
+        return g(s).bind(h)
+
+    assert m.bind(g).bind(h) == m.bind(gh)
+
+
+def test_Result_bind_op():
+    m = result.ok("a")
+    assert m >> appendM("s") == result.ok("as")
+    assert (m >> appendM("s")) >> appendM("t") == result.ok("ast")
+    assert m >> (lambda s: appendM("s")(s) >> appendM("t")) == result.ok("ast")

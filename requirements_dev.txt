@@ -1,5 +1,5 @@
-black==25.1.0
-hypothesis==6.131.6
-pylint==3.3.6
-pytest==8.3.5
+black~=25.1.0
+hypothesis~=6.131.6
+pylint~=3.3.6
+pytest~=8.3.5
 pyright
