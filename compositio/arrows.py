@@ -27,7 +27,7 @@ class Arrow[A, B]:
     __call__ = __rrshift__
 
     def __rmatmul__[C](self, other: "Arrow[C, A]" | Callable[[C], A]) -> "Arrow[C, B]":
-        """Arrow composition
+        """(>>>) Arrow composition
 
         (C -> A) -> (A -> B) ==> (C -> B)
         """
@@ -67,7 +67,7 @@ class Arrow[A, B]:
                 return Arrow(g)
 
     def __add__[C, D](self, other: "Arrow[C, D]"):
-        """Split the input between the two argument arrows and combine their output.
+        """(***) Split the input between the two argument arrows and combine their output.
 
         (A -> B, C -> D) ==> (A, C) -> (B, D)
 
@@ -86,7 +86,7 @@ class Arrow[A, B]:
         return Arrow(Comb.agg(self.f, other.f))
 
     def __sub__[C](self, other: "Arrow[A, C]") -> "Arrow[A, tuple[B, C]]":
-        """Fanout
+        """(&&&) Fanout
 
         (A -> B, A -> C) ==> A -> (B, C)
 
