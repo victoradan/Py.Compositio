@@ -1,4 +1,4 @@
-from functools import reduce
+import functools
 from typing import Callable, Iterable
 
 import compositio.combinators as Comb
@@ -213,7 +213,7 @@ def mapca[I, O](f: Callable[[I], O]):
     return Arrow[Iterable[I], Iterable[O]](lambda xs: Comb.mapc(f, xs))
 
 
-def reducea[I, O](f, z):
+def reducea[I, O](f: Callable[[O, I], O], z: O):
     """Version of reduce (fold) that works like an arrow.
 
     >>> from operator import add
@@ -226,4 +226,4 @@ def reducea[I, O](f, z):
     '235711'
 
     """
-    return Arrow[list[I], O](lambda xs: reduce(f, xs, z))
+    return Arrow[Iterable[I], O](lambda xs: functools.reduce(f, xs, z))
