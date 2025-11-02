@@ -78,7 +78,9 @@ def curry[A, R](f: Callable[[A], R]) -> Callable[[A], R]: ...
 @overload
 def curry[A, B, R](f: Callable[[A, B], R]) -> Callable[[A], Callable[[B], R]]: ...
 @overload
-def curry[A, B, C, R](f: Callable[[A, B, C], R]) -> Callable[[A], Callable[[B], Callable[[C], R]]]: ...
+def curry[A, B, C, R](
+    f: Callable[[A, B, C], R],
+) -> Callable[[A], Callable[[B], Callable[[C], R]]]: ...
 def curry(f):  # no type here; types are handled by overloads
     def _curried(*args, **kwargs):
         if len(args) + len(kwargs) >= f.__code__.co_argcount:
@@ -96,6 +98,16 @@ def mapc[I, O](f: Callable[[I], O], ls: Iterable[I], max_workers: int = 4) -> It
     """Concurrent map function with ThreadPoolExecutor"""
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         return executor.map(f, ls)
+
+
+def mapcm[I, O](f: Callable[[I], O], ls: Iterable[I], max_workers: int = 4) -> Iterable[O]:
+    """Maybe concurrent map function with ThreadPoolExecutor, if len(ls) > 1."""
+    match ls:
+        case list() if len(ls) < 2:
+            return map(f, ls)
+        case _:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                return executor.map(f, ls)
 
 
 def until[I](pred: Callable[[I], bool], func: Callable[[I], I], val: I):

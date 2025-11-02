@@ -5,9 +5,12 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["compositio"]
 
+[tool.black]
+line-length = 120
+
 [project]
 name = "pycompositio"
-version = "0.4.0"
+version = "0.4.1"
 authors = [
   { name="Victor Adan", email="vadan@netroadshow.com" },
 ]
