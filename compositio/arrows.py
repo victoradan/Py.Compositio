@@ -28,6 +28,13 @@ class Arrow[A, B]:
         Compose Arrow with function, or Arrow with Arrow.
 
         (C -> A) -> (A -> B) ==> (C -> B)
+
+        >>> addOne = Arrow(lambda x : x + 1)
+        >>> double = Arrow(lambda x : x * 2)
+        >>> (addOne >> double)(2)
+        6
+        >>> ((lambda x: x + 1) >> double)(2)
+        6
         """
 
         match other:
@@ -49,6 +56,13 @@ class Arrow[A, B]:
         Compose function with Arrow, or Arrow with Arrow.
 
         (A -> B) -> (B -> C) ==> (A -> C)
+
+        >>> addOne = Arrow(lambda x : x + 1)
+        >>> double = Arrow(lambda x : x * 2)
+        >>> (addOne >> double)(2)
+        6
+        >>> (addOne >> (lambda x: x * 2))(2)
+        6
         """
 
         match other:
@@ -111,6 +125,16 @@ class Arrow[A, B]:
             return (x, x)
 
         return Arrow(h) >> (self * other)
+
+    ## Choice ##
+
+    ## TODO (+++)
+    # def __add__(self, )
+
+    ## TODO (|||)
+    # def __sub__(self, )
+
+    ## Other ##
 
     # def __or__(self, other: "Arrow[A,B]") -> "Arrow[A, B]":
     #     """
