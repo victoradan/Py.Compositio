@@ -21,3 +21,24 @@ def test_Maybe_functor_laws(v):
 
     assert maybe.just(v).map(a1).map(a2) == maybe.just(v).map(compose(a2, a1))
     assert maybe.nothing().map(a1).map(a2) == maybe.nothing().map(compose(a2, a1))
+
+
+@given(st.text())
+def test_Maybe_bind_laws(v):
+    @curry
+    def appendM(suffix: str, s: str):
+        return maybe.just(s + suffix)
+
+    ## Identity
+    m = maybe.just(v)
+    assert m.bind(appendM("s")) == appendM("s")(v)
+    assert m.bind(maybe.just) == m
+
+    ## associativity
+    g = appendM("s")
+    h = appendM("t")
+
+    def gh(s: str):
+        return g(s).bind(h)
+
+    assert m.bind(g).bind(h) == m.bind(gh)

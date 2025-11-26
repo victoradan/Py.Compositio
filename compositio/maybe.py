@@ -6,10 +6,17 @@ from typing import Callable, Literal
 class Maybe[T]:
     val: tuple[Literal["Just"], T] | Literal["Nothing"]
 
-    def map[U](self, f: Callable[[T], U]) -> "Maybe[U]":
+    def map[B](self, f: Callable[[T], B]) -> "Maybe[B]":
         match self.val:
             case ("Just", v):
                 return Maybe(("Just", f(v)))
+            case "Nothing":
+                return Maybe("Nothing")
+
+    def bind[B](self, f: Callable[[T], "Maybe[B]"]) -> "Maybe[B]":
+        match self.val:
+            case ("Just", v):
+                return f(v)
             case "Nothing":
                 return Maybe("Nothing")
 
@@ -21,7 +28,7 @@ class Maybe[T]:
                 return nothing
 
 
-def just[T](val: T):  # pyright: ignore
+def just[T](val: T) -> Maybe[T]:
     return Maybe(("Just", val))
 
 
@@ -29,5 +36,9 @@ def nothing():
     return Maybe("Nothing")
 
 
-def maybe_none[I, O](none: O, otherwise: Callable[[I], O], val: I | None):
+def from_optional[T](val: T | None) -> Maybe[T]:
+    return just(val) if val is not None else nothing()
+
+
+def maybe_none[I, O](none: O, otherwise: Callable[[I], O], val: I | None) -> O:
     return none if val is None else otherwise(val)
