@@ -4,6 +4,14 @@ from hypothesis import strategies as st
 from compositio import maybe
 from compositio.combinators import compose, curry
 
+@curry
+def append(suffix: str, x: str):
+    return x + suffix
+
+@curry
+def appendM(suffix: str, s: str):
+    return maybe.just(s + suffix)
+
 
 @given(st.text())
 def test_Maybe_functor_laws(v):
@@ -12,10 +20,6 @@ def test_Maybe_functor_laws(v):
     assert maybe.nothing().map(lambda x: x) == maybe.nothing()
 
     ## composition
-    @curry
-    def append(suffix: str, x: str):
-        return x + suffix
-
     a1 = append("1")
     a2 = append("2")
 
@@ -25,10 +29,6 @@ def test_Maybe_functor_laws(v):
 
 @given(st.text())
 def test_Maybe_bind_laws(v):
-    @curry
-    def appendM(suffix: str, s: str):
-        return maybe.just(s + suffix)
-
     ## Identity
     m = maybe.just(v)
     assert m.bind(appendM("s")) == appendM("s")(v)
@@ -42,3 +42,18 @@ def test_Maybe_bind_laws(v):
         return g(s).bind(h)
 
     assert m.bind(g).bind(h) == m.bind(gh)
+
+def test_Maybe_map_op():
+
+    r = append("b") / maybe.just("a")
+    assert r == maybe.just("ab")
+
+    r = append("b") / maybe.nothing()
+    assert r == maybe.nothing()
+
+def test_Maybe_bind_op():
+    m = maybe.just("a")
+    assert m >> appendM("s") == maybe.just("as")
+    assert m >> appendM("s") >> appendM("t") == maybe.just("ast")
+    assert m >> (lambda s: appendM("s")(s) >> appendM("t")) == maybe.just("ast")
+    assert maybe.nothing() >> appendM('s') == maybe.nothing()

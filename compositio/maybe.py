@@ -13,12 +13,16 @@ class Maybe[T]:
             case "Nothing":
                 return Maybe("Nothing")
 
+    __rtruediv__ = map
+
     def bind[B](self, f: Callable[[T], "Maybe[B]"]) -> "Maybe[B]":
         match self.val:
             case ("Just", v):
                 return f(v)
             case "Nothing":
                 return Maybe("Nothing")
+
+    __rshift__ = bind
 
     def maybe[B](self, nothing: B, otherwise: Callable[[T], B]) -> B:
         match self.val:

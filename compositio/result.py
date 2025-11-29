@@ -34,8 +34,7 @@ class Result[O, E]:
             case "Err", v:
                 return Result(("Err", v))
 
-    def __rshift__[T](self, f: Callable[[O], "Result[T, E]"]):
-        return self.bind(f)
+    __rshift__ = bind
 
     def either[R](self, onsuccess: Callable[[O], R], onfailure: Callable[[E], R]) -> R:
         match self.val:
