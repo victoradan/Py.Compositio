@@ -64,7 +64,6 @@ def test_Result_bind_laws(v):
 
 def test_Result_bind_op():
     m = result.ok("a")
-    assert m >> appendM("s") == result.ok("as")
-    assert m >> appendM("s") >> appendM("t") == result.ok("ast")
-    assert (m >> appendM("s")) >> appendM("t") == result.ok("ast")
-    assert m >> (lambda s: appendM("s")(s) >> appendM("t")) == result.ok("ast")
+    assert (m @ appendM("s")) == result.ok("as")
+    assert (m @ appendM("s")) @ appendM("t") == result.ok("ast")
+    assert m @ (lambda s: appendM("s")(s) @ appendM("t")) == result.ok("ast")

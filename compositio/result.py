@@ -34,7 +34,7 @@ class Result[O, E]:
             case "Err", v:
                 return Result(("Err", v))
 
-    __rshift__ = bind
+    __matmul__ = bind
 
     def either[R](self, onsuccess: Callable[[O], R], onfailure: Callable[[E], R]) -> R:
         match self.val:

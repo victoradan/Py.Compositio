@@ -22,7 +22,7 @@ class Maybe[T]:
             case "Nothing":
                 return Maybe("Nothing")
 
-    __rshift__ = bind
+    __matmul__ = bind
 
     def maybe[B](self, nothing: B, otherwise: Callable[[T], B]) -> B:
         match self.val:
