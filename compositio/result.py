@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, Literal
 
-import compositio.combinators as Comb
-
 
 @dataclass
 class Result[O, E]:
