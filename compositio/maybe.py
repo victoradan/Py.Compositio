@@ -4,14 +4,14 @@ from typing import Callable, Literal
 
 @dataclass(eq=True, frozen=True)
 class Maybe[T]:
-    val: tuple[Literal["Just"], T] | Literal["Nothing"]
+    val: tuple[Literal["Just"], T] | None
 
     def map[B](self, f: Callable[[T], B]) -> "Maybe[B]":
         match self.val:
             case ("Just", v):
                 return Maybe(("Just", f(v)))
-            case "Nothing":
-                return Maybe("Nothing")
+            case None:
+                return Maybe(None)
 
     __rtruediv__ = map
 
@@ -19,8 +19,8 @@ class Maybe[T]:
         match self.val:
             case ("Just", v):
                 return f(v)
-            case "Nothing":
-                return Maybe("Nothing")
+            case None:
+                return Maybe(None)
 
     __matmul__ = bind
 
@@ -28,7 +28,7 @@ class Maybe[T]:
         match self.val:
             case ("Just", v):
                 return otherwise(v)
-            case "Nothing":
+            case None:
                 return nothing
 
 
@@ -37,7 +37,7 @@ def just[T](val: T) -> Maybe[T]:
 
 
 def nothing():
-    return Maybe("Nothing")
+    return Maybe(None)
 
 
 def from_optional[T](val: T | None) -> Maybe[T]:
