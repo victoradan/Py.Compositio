@@ -1,5 +1,5 @@
 import concurrent.futures
-from typing import Callable, Iterable, overload
+from typing import Callable, Iterable, overload, Sequence
 
 
 def const[T](x: T) -> Callable[[object], T]:
@@ -121,3 +121,11 @@ def until[I](pred: Callable[[I], bool], func: Callable[[I], I], val: I):
     while not pred(val):
         val = func(val)
     return val
+
+
+def conc[X](h: X, seq: Sequence[X]) -> Sequence[X]:
+    match seq:
+        case tuple():
+            return tuple([h, *seq])
+        case list() | _:
+            return [h, *seq]

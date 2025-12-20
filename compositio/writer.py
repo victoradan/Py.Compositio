@@ -22,6 +22,9 @@ class Writer[A, W]:
 
     __matmul__ = bind
 
+    def run(self):
+        return (self.val, self.con)
+
 
 def write[T, W](val: T, con: W) -> Writer[T, W]:
     return Writer(val, [con])
