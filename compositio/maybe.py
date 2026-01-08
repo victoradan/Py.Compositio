@@ -43,6 +43,14 @@ class Maybe[T]:
                 return nothing
 
 
+def both[A, B](a: Maybe[A], b: Maybe[B]) -> Maybe[tuple[A, B]]:
+    match a.val, b.val:
+        case ("Just", v1), ("Just", v2):
+            return just((v1, v2))
+        case _, _:
+            return nothing()
+
+
 def just[T](val: T) -> Maybe[T]:
     return Maybe(("Just", val))
 

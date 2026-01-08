@@ -94,3 +94,10 @@ def test_squence():
     assert M.sequence([M.nothing()]) == M.nothing()
     assert M.sequence([M.just(1), M.just(2)]) == M.just([1, 2])
     assert M.sequence([M.just(1), M.nothing()]) == M.nothing()
+
+
+def test_both():
+    assert M.both(M.just(1), M.just(2)) == M.just((1, 2))
+    assert M.both(M.just(1), M.nothing()) == M.nothing()
+    assert M.both(M.nothing(), M.just(2)) == M.nothing()
+    assert M.both(M.nothing(), M.nothing()) == M.nothing()
