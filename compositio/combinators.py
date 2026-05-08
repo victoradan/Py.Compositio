@@ -12,6 +12,7 @@ def i[T](x: T) -> T:
 
 
 def it[T](x: T) -> tuple[T, T]:
+    "Duplicate"
     return (x, x)
 
 
