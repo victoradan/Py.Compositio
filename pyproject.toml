@@ -12,10 +12,11 @@ line-length = 120
 name = "pycompositio"
 version = "0.4.2"
 authors = [
-  { name="Victor Adan", email="vadan@netroadshow.com" },
+  { name="Victor Adan", email="vctradn@gmail.com" },
 ]
 description = "Functional programming in Python"
 requires-python = ">=3.12"
+license = "MIT"
 classifiers = [ ]
 dependencies = [ ]
 
