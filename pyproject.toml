@@ -10,7 +10,7 @@ line-length = 120
 
 [project]
 name = "pycompositio"
-version = "0.4.1"
+version = "0.4.2"
 authors = [
   { name="Victor Adan", email="vadan@netroadshow.com" },
 ]

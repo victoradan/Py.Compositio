@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Callable, Literal, Iterable
 
 
 @dataclass
@@ -48,3 +48,18 @@ def ok[S, F](v: S):
 
 def err[S, F](v: F):
     return Result[S, F](("Err", v))
+
+
+def traverse[A, B, E](f: Callable[[A], Result[B, E]], seq: Iterable[A]) -> Result[Iterable[B], E]:
+    return sequence(map(f, seq))
+
+
+def sequence[O, E](seq: Iterable[Result[O, E]]) -> Result[Iterable[O], E]:
+    result: list[O] = []
+    for item in seq:
+        match item.val:
+            case "Ok", v:
+                result.append(v)
+            case "Err", v:
+                return err(v)
+    return ok(result)

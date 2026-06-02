@@ -64,6 +64,28 @@ def test_Result_bind_laws(v):
 
 def test_Result_bind_op():
     m = result.ok("a")
-    assert (m @ appendM("s")) == result.ok("as")
-    assert (m @ appendM("s")) @ appendM("t") == result.ok("ast")
+    assert m @ appendM("s") == result.ok("as")
+    assert m @ appendM("s") @ appendM("t") == result.ok("ast")
     assert m @ (lambda s: appendM("s")(s) @ appendM("t")) == result.ok("ast")
+
+
+def test_sequence():
+    r = result.sequence([result.ok(1), result.ok(2), result.ok(3)])
+    assert r == result.ok([1, 2, 3])
+
+    r = result.sequence([result.ok(1), result.err("e"), result.ok(3)])
+    assert r == result.err("e")
+
+    r = result.sequence([])
+    assert r == result.ok([])
+
+
+def test_traverse():
+    r = result.traverse(lambda x: result.ok(x + 1), [1, 2, 3])
+    assert r == result.ok([2, 3, 4])
+
+    r = result.traverse(lambda x: result.err(f"e{x}"), [1, 2, 3])
+    assert r == result.err("e1")
+
+    r = result.traverse(lambda x: result.ok(x), [])
+    assert r == result.ok([])
