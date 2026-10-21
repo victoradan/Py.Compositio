@@ -17,3 +17,7 @@ test:
 
 types:
 	pyright .
+
+upload:
+	python -m build
+	twine upload dist/*
