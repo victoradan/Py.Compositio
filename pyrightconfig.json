@@ -1,6 +1,5 @@
 {
   "exclude": [
-    "pocs/serverless-pdf-chat",
     "**/.venv"
   ],
   "typeCheckingMode": "standard",
