@@ -101,3 +101,19 @@ def test_both():
     assert M.both(M.just(1), M.nothing()) == M.nothing()
     assert M.both(M.nothing(), M.just(2)) == M.nothing()
     assert M.both(M.nothing(), M.nothing()) == M.nothing()
+
+
+@given(st.integers())
+def test_is_just(v):
+    assert M.just(v).is_just()
+    assert not M.nothing().is_just()
+
+
+def test_is_just_of_none():
+    assert M.just(None).is_just()
+
+
+@given(st.integers(), st.integers())
+def test_value_or(v, default):
+    assert M.just(v).value_or(default) == v
+    assert M.nothing().value_or(default) == default
