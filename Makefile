@@ -1,4 +1,4 @@
-.PHONY: direnv venv install test init
+.PHONY: init direnv venv install test types upload
 
 init: venv install direnv
 

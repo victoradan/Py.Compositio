@@ -35,12 +35,19 @@ class Maybe[T]:
 
     __matmul__ = bind
 
-    def maybe[B](self, nothing: B, otherwise: Callable[[T], B]) -> B:
+    def maybe[B](self, nothing: B, f: Callable[[T], B]) -> B:
         match self.val:
             case ("Just", v):
-                return otherwise(v)
+                return f(v)
             case None:
                 return nothing
+
+    def is_just(self) -> bool:
+        return self.maybe(False, C.const(True))
+
+    def value_or(self, nothing: T) -> T:
+        """Returns the `nothing` value if `Nothing`, else the Just value"""
+        return self.maybe(nothing, C.i)
 
 
 def both[A, B](a: Maybe[A], b: Maybe[B]) -> Maybe[tuple[A, B]]:
@@ -63,20 +70,24 @@ def from_optional[T](val: T | None) -> Maybe[T]:
     return just(val) if val is not None else nothing()
 
 
-def maybe_none[I, O](none: O, otherwise: Callable[[I], O], val: I | None) -> O:
-    return none if val is None else otherwise(val)
+def maybe_none[I, O](none: O, f: Callable[[I], O], val: I | None) -> O:
+    return none if val is None else f(val)
 
 
-def map_maybe[A, B](f: Callable[[A], Maybe[B]], ls: Sequence[A]) -> Sequence[B]:
-    """A map that throws out elements for which `f` returns Nothing."""
+def map_maybe[A, B](f: Callable[[A], Maybe[B]], ls: Sequence[A]) -> list[B]:
+    """A map that throws out elements for which `f` returns `Nothing`."""
+    result: list[B] = []
+    for l in ls:
+        match f(l).val:
+            case ("Just", v):
+                result.append(v)
+            case None:
+                pass
+    return result
 
-    def to_list[T](m: Maybe[T]) -> list[T]:
-        return m.maybe([], lambda v: [v])
 
-    return [r for x in ls for r in to_list(f(x))]
-
-
-def cat_maybes[A](ls: Sequence[Maybe[A]]) -> Sequence[A]:
+def cat_maybes[A](ls: Sequence[Maybe[A]]) -> list[A]:
+    """Takes a list of `Maybe`s and returns a list of all the Just values."""
     return map_maybe(C.i, ls)
 
 
