@@ -46,11 +46,11 @@ class Result[O, E]:
     def is_ok(self) -> bool:
         return self.either(C.const(True), C.const(False))
 
-    def from_left(self, default: O) -> O:
+    def from_ok(self, default: O) -> O:
         """Return the contents of an Ok-value or a default value otherwise."""
         return self.either(C.i, C.const(default))
 
-    def from_right(self, default: E) -> E:
+    def from_err(self, default: E) -> E:
         """Return the contents of an Err-value or a default value otherwise."""
         return self.either(C.const(default), C.i)
 
@@ -63,18 +63,16 @@ def err[O, E](v: E):
     return Result[O, E](("Err", v))
 
 
-def lefts[O, E](rs: Iterable[Result[O, E]]) -> list[O]:
+def oks[O, E](rs: Iterable[Result[O, E]]) -> list[O]:
     """Extracts from a list of `Result` all the Ok elements, in order."""
-    return list(filter(None, map(lambda r: r.either(C.i, C.const(None)), rs)))
+    return partition_results(rs)[0]
+    # return list(filter(None, map(lambda r: r.either(C.i, C.const(None)), rs)))
 
 
-def rights[O, E](rs: Iterable[Result[O, E]]) -> list[E]:
+def errs[O, E](rs: Iterable[Result[O, E]]) -> list[E]:
     """Extracts from a list of `Result` all the Err elements, in order."""
-    return list(filter(None, map(lambda r: r.either(C.const(None), C.i), rs)))
-
-
-def traverse[A, B, E](f: Callable[[A], Result[B, E]], seq: Iterable[A]) -> Result[Iterable[B], E]:
-    return sequence(map(f, seq))
+    return partition_results(rs)[1]
+    # return list(filter(None, map(lambda r: r.either(C.const(None), C.i), rs)))
 
 
 def partition_results[O, E](rs: Iterable[Result[O, E]]) -> tuple[list[O], list[E]]:
@@ -88,6 +86,10 @@ def partition_results[O, E](rs: Iterable[Result[O, E]]) -> tuple[list[O], list[E
             case "Err", v:
                 errs.append(v)
     return (oks, errs)
+
+
+def traverse[A, B, E](f: Callable[[A], Result[B, E]], seq: Iterable[A]) -> Result[Iterable[B], E]:
+    return sequence(map(f, seq))
 
 
 def sequence[O, E](seq: Iterable[Result[O, E]]) -> Result[Iterable[O], E]:
