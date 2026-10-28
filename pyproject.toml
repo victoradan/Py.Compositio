@@ -14,7 +14,8 @@ version = "0.5.0"
 authors = [
   { name="Victor Adan", email="vctradn@gmail.com" },
 ]
-description = "Functional programming in Python"
+description = "Functional Programming types and combinators in Python"
+readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 classifiers = [ ]

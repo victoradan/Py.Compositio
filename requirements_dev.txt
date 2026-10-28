@@ -4,4 +4,4 @@ hypothesis~=6.131
 pylint~=3.3
 pytest~=8.3
 pyright
-twine
+twine~=7.0
