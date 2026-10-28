@@ -16,7 +16,7 @@ def appendM(suffix: str, s: str):
 
 
 @given(st.text())
-def test_Result_functor_laws(v):
+def test_Result_functor_laws(v: str):
     ## identity
     assert result.ok(v).map(lambda x: x) == result.ok(v)
     assert result.err(v).map(lambda x: x) == result.err(v)
@@ -123,13 +123,13 @@ def test_oks_errs_examples():
 
 
 def test_oks_errs_keep_falsy_values():
-    rs = [result.ok(0), result.err(""), result.ok(None), result.err(False)]
+    rs: list[result.Result[int | None, str | bool]] = [result.ok(0), result.err(""), result.ok(None), result.err(False)]
     assert result.oks(rs) == [0, None]
     assert result.errs(rs) == ["", False]
 
 
 @given(st.lists(results))
-def test_oks_errs_partition_results(rs):
+def test_oks_errs_partition_results[O, E](rs: list[result.Result[O, E]]):
     oks, errs = result.partition_results(rs)
     assert result.oks(rs) == oks
     assert result.errs(rs) == errs

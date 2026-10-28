@@ -1,0 +1,32 @@
+{
+  "exclude": [
+    "pocs/serverless-pdf-chat",
+    "**/.venv"
+  ],
+  "typeCheckingMode": "standard",
+  "strictListInference": true,
+  "strictSetInference": true,
+  "reportConstantRedefinition": "warning",
+  "reportDeprecated": "warning",
+  "reportDuplicateImport": "warning",
+  "reportInconsistentConstructor": "warning",
+  "reportMatchNotExhaustive": "error",
+  "reportMissingParameterType": "warning",
+  "reportMissingTypeArgument": "warning",
+  "reportPrivateUsage": "none",
+  "reportTypeCommentUsage": "warning",
+  "reportUnknownArgumentType": "none",
+  "reportUnknownLambdaType": "warning",
+  "reportUnknownMemberType": "none",
+  "reportUnknownParameterType": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnnecessaryCast": "warning",
+  "reportUnnecessaryComparison": "warning",
+  "reportUnnecessaryContains": "warning",
+  "reportUnnecessaryIsInstance": "warning",
+  "reportUnusedClass": "warning",
+  "reportUnusedImport": "warning",
+  "reportUnusedFunction": "warning",
+  "reportUnusedVariable": "warning",
+  "reportImportCycles": "warning"
+}
