@@ -55,24 +55,22 @@ class Result[O, E]:
         return self.either(C.const(default), C.i)
 
 
-def ok[O, E](v: O):
+def ok[O, E](v: O):  # pyright: ignore
     return Result[O, E](("Ok", v))
 
 
-def err[O, E](v: E):
+def err[O, E](v: E):  # pyright: ignore
     return Result[O, E](("Err", v))
 
 
 def oks[O, E](rs: Iterable[Result[O, E]]) -> list[O]:
     """Extracts from a list of `Result` all the Ok elements, in order."""
     return partition_results(rs)[0]
-    # return list(filter(None, map(lambda r: r.either(C.i, C.const(None)), rs)))
 
 
 def errs[O, E](rs: Iterable[Result[O, E]]) -> list[E]:
     """Extracts from a list of `Result` all the Err elements, in order."""
     return partition_results(rs)[1]
-    # return list(filter(None, map(lambda r: r.either(C.const(None), C.i), rs)))
 
 
 def partition_results[O, E](rs: Iterable[Result[O, E]]) -> tuple[list[O], list[E]]:
@@ -88,10 +86,6 @@ def partition_results[O, E](rs: Iterable[Result[O, E]]) -> tuple[list[O], list[E
     return (oks, errs)
 
 
-def traverse[A, B, E](f: Callable[[A], Result[B, E]], seq: Iterable[A]) -> Result[Iterable[B], E]:
-    return sequence(map(f, seq))
-
-
 def sequence[O, E](seq: Iterable[Result[O, E]]) -> Result[Iterable[O], E]:
     result: list[O] = []
     for item in seq:
@@ -101,3 +95,7 @@ def sequence[O, E](seq: Iterable[Result[O, E]]) -> Result[Iterable[O], E]:
             case "Err", v:
                 return err(v)
     return ok(result)
+
+
+def traverse[A, B, E](f: Callable[[A], Result[B, E]], seq: Iterable[A]) -> Result[Iterable[B], E]:
+    return sequence(map(f, seq))
