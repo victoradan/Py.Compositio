@@ -86,11 +86,11 @@ def curry[A, B, C, R](
 def curry[A, B, C, D, R](
     f: Callable[[A, B, C, D], R],
 ) -> Callable[[A], Callable[[B], Callable[[C], Callable[[D], R]]]]: ...
-def curry(f):  # no type here; types are handled by overloads
-    def _curried(*args, **kwargs):
+def curry(f):  # type: ignore  - # no type here; types are handled by overloads
+    def _curried(*args, **kwargs):  # type: ignore
         if len(args) + len(kwargs) >= f.__code__.co_argcount:
             return f(*args, **kwargs)
-        return lambda *more_args, **more_kwargs: _curried(*args, *more_args, **{**kwargs, **more_kwargs})
+        return lambda *more_args, **more_kwargs: _curried(*args, *more_args, **{**kwargs, **more_kwargs})  # type: ignore
 
     return _curried
 
